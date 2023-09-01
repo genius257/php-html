@@ -1,0 +1,27 @@
+{
+  "name": "genius257/html",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "Genius257\\Html\\": "src/"
+    }
+  },
+  "authors": [
+    {
+      "name": "Anders Pedersen"
+    }
+  ],
+  "require-dev": {
+    "phpstan/phpstan": "^1.10"
+  },
+  "scripts": {
+    "test": "php -d zend.assertions=1 tests/testParser.php",
+    "phpstan": "phpstan"
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Views\\": "views/",
+      "Components\\": "components/"
+    }
+  }
+}
