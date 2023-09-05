@@ -67,7 +67,7 @@ class Parser
     /** Parse a tag or attribute name. */
     public function parse_tag_name(): string
     {
-        return $this->consume_while(fn ($c) => preg_match('/[a-zA-Z0-9]/', $c) === 1);
+        return $this->consume_while(fn (string $c) => preg_match('/[a-zA-Z0-9]/', $c) === 1);
     }
 
     /**
@@ -87,7 +87,7 @@ class Parser
      */
     public function parse_text(): Text
     {
-        return new Text($this->consume_while(fn ($c) => $c !== '<')); //FIXME: might need to be looked at later.
+        return new Text($this->consume_while(fn (string $c) => $c !== '<')); //FIXME: might need to be looked at later.
     }
 
     /**
@@ -148,7 +148,7 @@ class Parser
     {
         $open_quote = $this->consume_char();
         assert($open_quote === '"' || $open_quote === '\'');
-        $value = $this->consume_while(fn ($c) => $c !== $open_quote);
+        $value = $this->consume_while(fn (string $c) => $c !== $open_quote);
         assert($this->next_char() === $open_quote);
         $this->consume_char();
         return $value;
