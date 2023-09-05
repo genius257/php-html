@@ -100,6 +100,17 @@ class Parser
         assert($currentCharacter === '<');
         $tag_name = $this->parse_tag_name();
         $attrs = $this->parse_attributes();
+
+        // check for self closing tag
+        if ($this->next_char() === '/') {
+            $this->consume_char();
+
+            $char = $this->consume_char();
+            assert($char === '>');
+
+            return new Element($tag_name, $attrs, new NodeList());
+        }
+
         assert($this->next_char() === '>');
         $this->consume_char();
 
@@ -152,7 +163,7 @@ class Parser
         $attributes = new AttributeList();
         do {
             $this->consume_whitespace();
-            if ($this->next_char() === '>') {
+            if ($this->next_char() === '>' || $this->next_char() === '/') {
                 break;
             }
             $attribute = $this->parse_attr();
