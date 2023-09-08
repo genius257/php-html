@@ -67,7 +67,7 @@ class Parser
     /** Parse a tag or attribute name. */
     public function parse_tag_name(): string
     {
-        return $this->consume_while(fn (string $c) => preg_match('/[a-zA-Z0-9]/', $c) === 1);
+        return $this->consume_while(fn (string $c) => preg_match('/[a-zA-Z0-9_\-]/', $c) === 1);
     }
 
     /**
