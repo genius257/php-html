@@ -4,9 +4,8 @@ declare(strict_types=1);
 
 namespace Genius257\Html;
 
-use Genius257\Html\Dom\Attribute;
-use Genius257\Html\Dom\AttributeList;
-use Genius257\Html\Dom\Node;
+use Genius257\Html\Dom\Attr;
+use Genius257\Html\Dom\NamedNodeMap;
 use Genius257\Html\Dom\Text;
 use Genius257\Html\Dom\Element;
 use Genius257\Html\Dom\NodeList;
@@ -72,9 +71,8 @@ class Parser
 
     /**
      * Parse a single node.
-     * @return Node<mixed>
      */
-    public function parse_node(): Node
+    public function parse_node(): Element|Text
     {
         return match ($this->next_char()) {
             '<' => $this->parse_element(),
@@ -99,6 +97,9 @@ class Parser
         $currentCharacter = $this->consume_char();
         assert($currentCharacter === '<');
         $tag_name = $this->parse_tag_name();
+        if ($tag_name === '') {
+            throw new \Exception('Empty tag name');
+        }
         $attrs = $this->parse_attributes();
 
         // check for self closing tag
@@ -132,38 +133,49 @@ class Parser
 
     /**
      * Parse a single name="value" pair.
-     * @return Attribute
      */
-    public function parse_attr(): Attribute
+    public function parse_attr(): Attr
     {
         $name = $this->parse_tag_name();
-        assert($this->next_char() === '=');
-        $this->consume_char();
-        $value = $this->parse_attr_value();
-        return new Attribute(name: $name, value: $value);
+
+        if ($name === '') {
+            throw new \Exception('Empty attribute name');
+        }
+
+        $value = "";
+
+        if ($this->next_char() === '=') {
+            $this->consume_char();
+            $value = $this->parse_attr_value();
+        }
+        return new Attr(name: $name, value: $value);
     }
 
     /** Parse a quoted value. */
     public function parse_attr_value(): string
     {
-        $open_quote = $this->consume_char();
-        assert($open_quote === '"' || $open_quote === '\'');
-        $value = $this->consume_while(fn (string $c) => $c !== $open_quote);
-        assert($this->next_char() === $open_quote);
-        $this->consume_char();
+        if (in_array($this->next_char(), ['"', '\''], true)) {
+            $open_quote = $this->consume_char();
+            $value = $this->consume_while(fn (string $c) => $c !== $open_quote);
+            assert($this->next_char() === $open_quote);
+            $this->consume_char();
+        } else {
+            $value = $this->consume_while(fn (string $c) => !in_array($c, ['"', '\'', '<', '>', '`', ' ']));
+        }
+
         return $value;
     }
 
     /**
      * Parse a list of name="value" pairs, separated by whitespace.
-     * @return AttributeList<Attribute>
+     * @return NamedNodeMap<Attr>
      */
-    public function parse_attributes(): AttributeList
+    public function parse_attributes(): NamedNodeMap
     {
-        $attributes = new AttributeList();
+        $attributes = new NamedNodeMap();
         do {
             $this->consume_whitespace();
-            if ($this->next_char() === '>' || $this->next_char() === '/') {
+            if (in_array($this->next_char(), ['>', '/'], true)) {
                 break;
             }
             $attribute = $this->parse_attr();
@@ -176,10 +188,11 @@ class Parser
 
     /**
      * Parse a sequence of sibling nodes.
-     * @return NodeList<Node<mixed>>
+     * @return NodeList<Element|Text>
      */
     public function parse_nodes(): NodeList
     {
+        /** @var NodeList<Element|Text> */
         $nodes = new NodeList();
         do {
             $this->consume_whitespace();
@@ -193,9 +206,8 @@ class Parser
 
     /**
      * Parse an HTML document and return the root element.
-     * @return Node<mixed>
      */
-    public static function parse(string $source): Node
+    public static function parse(string $source): Element|Text
     {
         $nodes = (new Parser(pos: 0, input: $source))->parse_nodes();
 
@@ -203,7 +215,7 @@ class Parser
         if (count($nodes) === 1) {
             return $nodes[0]; // @phpstan-ignore return.type
         } else {
-            return new Element('html', new AttributeList(), $nodes);
+            return new Element('html', new NamedNodeMap(), $nodes);
         }
     }
 }

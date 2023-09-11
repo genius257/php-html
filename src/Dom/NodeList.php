@@ -7,9 +7,9 @@ namespace Genius257\Html\Dom;
 use ArrayObject;
 
 /**
- * @template T of Node = Node<mixed>
+ * @template T of Node = Node
  * 
- * @extends ArrayObject<string, T>
+ * @extends ArrayObject<int, T>
  */
 class NodeList extends ArrayObject
 {
