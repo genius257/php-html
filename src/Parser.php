@@ -95,7 +95,9 @@ class Parser
     {
         // Opening tag.
         $currentCharacter = $this->consume_char();
-        assert($currentCharacter === '<');
+        if ($currentCharacter !== '<') {
+            throw new \Exception('No opening tag found');
+        }
         $tag_name = $this->parse_tag_name();
         if ($tag_name === '') {
             throw new \Exception('Empty tag name');
@@ -106,27 +108,34 @@ class Parser
         if ($this->next_char() === '/') {
             $this->consume_char();
 
-            $char = $this->consume_char();
-            assert($char === '>');
+            if ($this->consume_char() !== '>') {
+                throw new \Exception('Unclosed self closing tag');
+            }
 
             return new Element($tag_name, $attrs, new NodeList());
         }
 
-        assert($this->next_char() === '>');
-        $this->consume_char();
+        if ($this->consume_char() !== '>') {
+            throw new \Exception('Unclosed tag');
+        }
 
         // Contents.
         $children = $this->parse_nodes();
 
         // Closing tag.
-        assert($this->next_char() === '<');
-        $this->consume_char();
-        assert($this->next_char() === '/');
-        $this->consume_char();
+        if ($this->consume_char() !== '<') {
+            throw new \Exception('No closing tag found');
+        }
+        if ($this->consume_char() !== '/') {
+            throw new \Exception('No closing tag found');
+        }
         $end_tag_name = $this->parse_tag_name();
-        assert($end_tag_name === $tag_name);
-        assert($this->next_char() === '>');
-        $this->consume_char();
+        if ($end_tag_name !== $tag_name) {
+            throw new \Exception(sprintf('End tag "%s" does not match start tag "%s"', $end_tag_name, $tag_name));
+        }
+        if ($this->consume_char() !== '>') {
+            throw new \Exception('Unclosed end tag');
+        }
 
         return new Element($tag_name, $attrs, $children);
     }
@@ -157,8 +166,9 @@ class Parser
         if (in_array($this->next_char(), ['"', '\''], true)) {
             $open_quote = $this->consume_char();
             $value = $this->consume_while(fn (string $c) => $c !== $open_quote);
-            assert($this->next_char() === $open_quote);
-            $this->consume_char();
+            if ($this->consume_char() !== $open_quote) {
+                throw new \Exception('Unclosed attribute value');
+            }
         } else {
             $value = $this->consume_while(fn (string $c) => !in_array($c, ['"', '\'', '<', '>', '`', ' ']));
         }
