@@ -12,16 +12,25 @@
     }
   ],
   "require-dev": {
-    "phpstan/phpstan": "^1.10"
+    "phpstan/phpstan": "^1.10",
+    "pestphp/pest": "^2.17",
+    "pestphp/pest-plugin-type-coverage": "^2.2"
   },
   "scripts": {
-    "test": "php -d zend.assertions=1 tests/testParser.php",
-    "phpstan": "phpstan"
+    "test": "pest",
+    "phpstan": "phpstan",
+    "pest-type-coverage": "./vendor/bin/pest --type-coverage --min=100",
+    "pest-coverage": "php -d xdebug.mode=coverage ./vendor/bin/pest --coverage"
   },
   "autoload-dev": {
     "psr-4": {
       "Views\\": "views/",
       "Components\\": "components/"
+    }
+  },
+  "config": {
+    "allow-plugins": {
+      "pestphp/pest-plugin": true
     }
   }
 }
