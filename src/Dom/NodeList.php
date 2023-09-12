@@ -15,7 +15,7 @@ class NodeList extends ArrayObject
 {
     /**
      * @inheritDoc
-     * @param array<string, T> $array
+     * @param array<int, T> $array
      */
     public function __construct(array $array = [])
     {
