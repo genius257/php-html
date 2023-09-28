@@ -182,6 +182,7 @@ class Parser
      */
     public function parse_attributes(): NamedNodeMap
     {
+        /** @var NamedNodeMap<Attr> */
         $attributes = new NamedNodeMap();
         do {
             $this->consume_whitespace();
