@@ -19,13 +19,13 @@ class Parser
     }
 
     /** Read the current character without consuming it. */
-    public function next_char(): string
+    public function nextChar(): string
     {
         return $this->input[$this->pos];
     }
 
     /** Do the next characters start with the given string? */
-    public function starts_with(string $s): bool
+    public function startsWith(string $s): bool
     {
         return str_starts_with(substr($this->input, $this->pos), $s);
     }
@@ -37,7 +37,7 @@ class Parser
     }
 
     /** Return the current character, and advance self.pos to the next character. */
-    public function consume_char(): string
+    public function consumeChar(): string
     {
         return $this->input[$this->pos++]; // Currently there is no checking if EOL is reached here, may be intentional.
     }
@@ -47,93 +47,95 @@ class Parser
      *
      * @param callable(string):bool $test
      */
-    public function consume_while(callable $test): string
+    public function consumeWhile(callable $test): string
     {
         $result = "";
-        while (!$this->eof() && $test($this->next_char())) {
-            $result .= $this->consume_char();
+        while (!$this->eof() && $test($this->nextChar())) {
+            $result .= $this->consumeChar();
         }
 
         return $result;
     }
 
     /** Consume and discard zero or more whitespace characters. */
-    public function consume_whitespace(): void
+    public function consumeWhitespace(): void
     {
-        $this->consume_while(ctype_space(...));
+        $this->consumeWhile(ctype_space(...));
     }
 
     /** Parse a tag or attribute name. */
-    public function parse_tag_name(): string
+    public function parseTagName(): string
     {
-        return $this->consume_while(fn (string $c) => preg_match('/[a-zA-Z0-9_\-]/', $c) === 1);
+        return $this->consumeWhile(fn (string $c) => preg_match('/[a-zA-Z0-9_\-]/', $c) === 1);
     }
 
     /**
      * Parse a single node.
      */
-    public function parse_node(): Element|Text
+    public function parseNode(): Element|Text
     {
-        return match ($this->next_char()) {
-            '<' => $this->parse_element(),
-            default => $this->parse_text(),
+        return match ($this->nextChar()) {
+            '<' => $this->parseElement(),
+            default => $this->parseText(),
         };
     }
 
     /**
      * Parse a text node.
      */
-    public function parse_text(): Text
+    public function parseText(): Text
     {
-        return new Text($this->consume_while(fn (string $c) => $c !== '<')); //FIXME: might need to be looked at later.
+        return new Text($this->consumeWhile(fn (string $c) => $c !== '<')); //FIXME: might need to be looked at later.
     }
 
     /**
      * Parse a single element, including its open tag, contents, and closing tag.
      */
-    public function parse_element(): Element
+    public function parseElement(): Element
     {
         // Opening tag.
-        $currentCharacter = $this->consume_char();
+        $currentCharacter = $this->consumeChar();
         if ($currentCharacter !== '<') {
             throw new \Exception('No opening tag found');
         }
-        $tag_name = $this->parse_tag_name();
+        $tag_name = $this->parseTagName();
         if ($tag_name === '') {
             throw new \Exception('Empty tag name');
         }
-        $attrs = $this->parse_attributes();
+        $attrs = $this->parseAttributes();
 
         // check for self closing tag
-        if ($this->next_char() === '/') {
-            $this->consume_char();
+        if ($this->nextChar() === '/') {
+            $this->consumeChar();
 
-            if ($this->consume_char() !== '>') {
+            if ($this->consumeChar() !== '>') {
                 throw new \Exception('Unclosed self closing tag');
             }
 
             return new Element($tag_name, $attrs, new NodeList());
         }
 
-        if ($this->consume_char() !== '>') {
+        if ($this->consumeChar() !== '>') {
             throw new \Exception('Unclosed tag');
         }
 
         // Contents.
-        $children = $this->parse_nodes();
+        $children = $this->parseNodes();
 
         // Closing tag.
-        if ($this->consume_char() !== '<') {
+        if ($this->consumeChar() !== '<') {
             throw new \Exception('No closing tag found');
         }
-        if ($this->consume_char() !== '/') {
+
+        if ($this->consumeChar() !== '/') { // @phpstan-ignore-line
             throw new \Exception('No closing tag found');
         }
-        $end_tag_name = $this->parse_tag_name();
+
+        $end_tag_name = $this->parseTagName();
         if ($end_tag_name !== $tag_name) {
             throw new \Exception(sprintf('End tag "%s" does not match start tag "%s"', $end_tag_name, $tag_name));
         }
-        if ($this->consume_char() !== '>') {
+        if ($this->consumeChar() !== '>') {
             throw new \Exception('Unclosed end tag');
         }
 
@@ -143,9 +145,9 @@ class Parser
     /**
      * Parse a single name="value" pair.
      */
-    public function parse_attr(): Attr
+    public function parseAttr(): Attr
     {
-        $name = $this->parse_tag_name();
+        $name = $this->parseTagName();
 
         if ($name === '') {
             throw new \Exception('Empty attribute name');
@@ -153,24 +155,24 @@ class Parser
 
         $value = "";
 
-        if ($this->next_char() === '=') {
-            $this->consume_char();
-            $value = $this->parse_attr_value();
+        if ($this->nextChar() === '=') {
+            $this->consumeChar();
+            $value = $this->parseAttrValue();
         }
         return new Attr(name: $name, value: $value);
     }
 
     /** Parse a quoted value. */
-    public function parse_attr_value(): string
+    public function parseAttrValue(): string
     {
-        if (in_array($this->next_char(), ['"', '\''], true)) {
-            $open_quote = $this->consume_char();
-            $value = $this->consume_while(fn (string $c) => $c !== $open_quote);
-            if ($this->consume_char() !== $open_quote) {
+        if (in_array($this->nextChar(), ['"', '\''], true)) {
+            $open_quote = $this->consumeChar();
+            $value = $this->consumeWhile(fn (string $c) => $c !== $open_quote);
+            if ($this->consumeChar() !== $open_quote) {
                 throw new \Exception('Unclosed attribute value');
             }
         } else {
-            $value = $this->consume_while(fn (string $c) => !in_array($c, ['"', '\'', '<', '>', '`', ' ']));
+            $value = $this->consumeWhile(fn (string $c) => !in_array($c, ['"', '\'', '<', '>', '`', ' ']));
         }
 
         return $value;
@@ -180,16 +182,16 @@ class Parser
      * Parse a list of name="value" pairs, separated by whitespace.
      * @return NamedNodeMap<Attr>
      */
-    public function parse_attributes(): NamedNodeMap
+    public function parseAttributes(): NamedNodeMap
     {
         /** @var NamedNodeMap<Attr> */
         $attributes = new NamedNodeMap();
         do {
-            $this->consume_whitespace();
-            if (in_array($this->next_char(), ['>', '/'], true)) {
+            $this->consumeWhitespace();
+            if (in_array($this->nextChar(), ['>', '/'], true)) {
                 break;
             }
-            $attribute = $this->parse_attr();
+            $attribute = $this->parseAttr();
             $attributes[$attribute->name] = $attribute;
         } while (1);
 
@@ -201,16 +203,16 @@ class Parser
      * Parse a sequence of sibling nodes.
      * @return NodeList<Element|Text>
      */
-    public function parse_nodes(): NodeList
+    public function parseNodes(): NodeList
     {
         /** @var NodeList<Element|Text> */
         $nodes = new NodeList();
         do {
-            $this->consume_whitespace();
-            if ($this->eof() || $this->starts_with('</')) {
+            $this->consumeWhitespace();
+            if ($this->eof() || $this->startsWith('</')) {
                 break;
             }
-            $nodes[] = $this->parse_node();
+            $nodes[] = $this->parseNode();
         } while (1);
         return $nodes;
     }
@@ -220,7 +222,7 @@ class Parser
      */
     public static function parse(string $source): Element|Text
     {
-        $nodes = (new Parser(pos: 0, input: $source))->parse_nodes();
+        $nodes = (new Parser(pos: 0, input: $source))->parseNodes();
 
         // If the document contains a root element, just return it. Otherwise, create one.
         if (isset($nodes[0])) {
