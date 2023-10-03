@@ -24,9 +24,9 @@ abstract class CharacterData extends Node {
     public function after(DocumentFragment|DocumentType|Element|CharacterData ...$nodes): void {
         //FIXME: https://developer.mozilla.org/en-US/docs/Web/API/CharacterData/after#exceptions
         
-        $index = array_search($this, $this->parentNode->childNodes);
+        $index = array_search($this, $this->parentNode->childNodes->getArrayCopy());
 
-        $after = array_slice($this->parentNode->childNodes, $index + 1, null, true);
+        $after = array_slice($this->parentNode->childNodes->getArrayCopy(), $index + 1, null, true);
         
         foreach (array_values($nodes) as $key => $node) {
             $this->parentNode->childNodes[$index + $key + 1] = $node;
