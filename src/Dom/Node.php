@@ -8,6 +8,7 @@ abstract class Node
 {
     // public string $baseURI;
 
+    /** @var NodeList<Node> */
     public readonly NodeList $childNodes;
 
     public function firstChild(): ?Node
