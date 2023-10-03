@@ -7,7 +7,7 @@ namespace Genius257\Html\Dom;
 use ArrayObject;
 
 /**
- * @template T of Node = Node
+ * @template-covariant T of Node = Node
  * 
  * @extends ArrayObject<int, T>
  */
