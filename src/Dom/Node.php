@@ -82,7 +82,7 @@ abstract class Node
 
     public function contains(Node $node): bool
     {
-        return $this->childNodes->contains($node);
+        return in_array($node, $this->childNodes->getArrayCopy(), true);
     }
 
     // getRootNode()
