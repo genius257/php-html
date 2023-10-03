@@ -11,10 +11,8 @@ Enum NodeType: int {
     case ATTRIBUTE_NODE = 2;
     case TEXT_NODE = 3;
     case CDATA_SECTION_NODE = 4;
-    #[Deprecated]
     /** @deprecated */
     case ENTITY_REFERENCE_NODE = 5;
-    #[Deprecated]
     /** @deprecated */
     case ENTITY_NODE = 6;
     case PROCESSING_INSTRUCTION_NODE = 7;
@@ -22,7 +20,6 @@ Enum NodeType: int {
     case DOCUMENT_NODE = 9;
     case DOCUMENT_TYPE_NODE = 10;
     case DOCUMENT_FRAGMENT_NODE = 11;
-    #[Deprecated]
     /** @deprecated */
     case NOTATION_NODE = 12;
 }
