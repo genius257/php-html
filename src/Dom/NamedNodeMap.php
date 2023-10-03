@@ -13,6 +13,6 @@ use IteratorAggregate;
  *
  * @extends ArrayObject<string, T>
  */
-class NamedNodeMap extends ArrayObject implements IteratorAggregate, Countable {
+class NamedNodeMap extends ArrayObject {
     //TODO: https://developer.mozilla.org/en-US/docs/Web/API/AttributeList
 }
