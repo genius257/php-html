@@ -30,7 +30,7 @@ abstract class Node
         }
 
         $parentNodes = $this->parentNode->childNodes;
-        return $parentNodes[array_search($this, $parentNodes) + 1] ?? null;
+        return $parentNodes[array_search($this, $parentNodes->getArrayCopy()) + 1] ?? null;
     }
 
     public string $nodeName;
