@@ -91,10 +91,12 @@ abstract class Node
         return $this->childNodes->count() > 0;
     }
 
-    public function insertBefore(): void
+    /*
+    public function insertBefore(Node $new, Node|null $reference): void
     {
         $this->childNodes->insertBefore();
     }
+    */
 
     // isDefaultNamespace()
 
@@ -108,13 +110,17 @@ abstract class Node
 
     // normalize()
 
+    /*
     public function removeChild(): void
     {
         $this->childNodes->remove();
     }
+    */
 
+    /*
     public function replaceChild(): void
     {
         $this->childNodes->replace();
     }
+    */
 }
