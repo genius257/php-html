@@ -33,11 +33,11 @@ abstract class CharacterData extends Node {
         $after = array_slice($this->parentNode->childNodes->getArrayCopy(), $index + 1, null, true);
         
         foreach (array_values($nodes) as $key => $node) {
-            $this->parentNode->childNodes[$index + $key + 1] = $node;
+            $this->parentNode->childNodes[$index + $key + 1] = $node; //@phpstan-ignore property.readOnlyAssignOutOfClass
         }
 
         foreach ($after as $node) {
-            $this->parentNode->childNodes[] = $node;
+            $this->parentNode->childNodes[] = $node; //@phpstan-ignore property.readOnlyAssignOutOfClass
         }
     }
 
