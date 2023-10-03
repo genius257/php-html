@@ -226,7 +226,7 @@ class Parser
 
         // If the document contains a root element, just return it. Otherwise, create one.
         if (isset($nodes[0])) {
-            return $nodes[0]; // @aphpstan-ignore return.type
+            return $nodes[0]; // @phpstan-ignore return.type
         } else {
             /** @var NamedNodeMap<Attr> */
             $attributes = new NamedNodeMap();
