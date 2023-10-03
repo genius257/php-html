@@ -70,7 +70,7 @@ abstract class Node
 
     public function appendChild(Node $node): void
     {
-        $this->childNodes[] = $node;
+        $this->childNodes[] = $node;//@phpstan-ignore property.readOnlyAssignOutOfClass
     }
 
     public function cloneNode(): Node {
