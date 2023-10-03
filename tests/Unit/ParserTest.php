@@ -4,101 +4,149 @@ use Genius257\Html\Dom\Element;
 use Genius257\Html\Dom\NamedNodeMap;
 use Genius257\Html\Dom\Text;
 use Genius257\Html\Parser;
+use PHPUnit\Framework\TestCase;
 
-test('parse normal tag', function () {
-    $actual = Parser::parse('<div></div>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('DIV');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->node_type->attributes['type']))->toBe(false);
-    expect($actual->childNodes->count())->toBe(0);
-});
+class ParserTest extends TestCase {
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseNormalTag() {
+        $actual = Parser::parse('<div></div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertFalse(isset($actual->attributes['type']));
+        $this->assertEquals(0, $actual->childNodes->count());
+    }
 
-//write pest test for Parser.php
-test('parse self closing tag', function () {
-    $actual = Parser::parse('<input/>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('INPUT');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->node_type->attributes['type']))->toBe(false);
-    expect($actual->childNodes->count())->toBe(0);
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseSelfClosingTag() {
+        $actual = Parser::parse('<input></input>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('INPUT', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertFalse(isset($actual->attributes['type']));
+        $this->assertEquals(0, $actual->childNodes->count());
+    }
 
-test('parse nested tag', function () {
-    $actual = Parser::parse('<div><div></div></div>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('DIV');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->attributes['type']))->toBe(false);
-    expect($actual->childNodes->count())->toBe(1);
-    /** @var Element $child */
-    $child = $actual->childNodes[0];
-    expect($child->tagName)->toBe('DIV');
-    expect($child->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($child->attributes['type']))->toBe(false);
-    expect($child->childNodes->count())->toBe(0);
-    //var_dump($actual);
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseNestedTag() {
+        $actual = Parser::parse('<div><div></div></div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertFalse(isset($actual->attributes['type']));
+        $this->assertEquals(1, $actual->childNodes->count());
+        /** @var Element $child */
+        $child = $actual->childNodes[0];
+        $this->assertEquals('DIV', $child->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertFalse(isset($actual->attributes['type']));
+        $this->assertEquals(0, $child->childNodes->count());
+    }
 
-test('parser text', function () {
-    /** @var Text */
-    $actual = Parser::parse('text');
-    expect($actual)->toBeInstanceOf(Text::class);
-    expect($actual->nodeValue)->toBe('text');
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseText() {
+        $actual = Parser::parse('text');
+        $this->assertInstanceOf(Text::class, $actual);
+        $this->assertEquals('text', $actual->nodeValue);
+    }
 
-test('parse text in element', function () {
-    $actual = Parser::parse('<div>text</div>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('DIV');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->attributes['type']))->toBe(false);
-    expect($actual->childNodes->count())->toBe(1);
-    /** @var Element $child */
-    $child = $actual->childNodes[0];
-    expect($child->nodeValue)->toBe('text');
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseTextInElement() {
+        $actual = Parser::parse('<div>text</div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertFalse(isset($actual->attributes['type']));
+        $this->assertEquals(1, $actual->childNodes->count());
+        /** @var Element $child */
+        $child = $actual->childNodes[0];
+        $this->assertInstanceOf(Text::class, $child);
+        $this->assertEquals('text', $child->nodeValue);
+    }
 
-test('parse attributes', function () {
-    $actual = Parser::parse('<div type="text"></div>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('DIV');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->attributes['type']))->toBe(true);
-    expect($actual->attributes['type']->value)->toBe('text');
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseAttributes()
+    {
+        $actual = Parser::parse('<div type="text" class="test"></div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertTrue(isset($actual->attributes['type']));
+        $this->assertEquals('text', $actual->attributes['type']->value);
+        $this->assertTrue(isset($actual->attributes['class']));
+        $this->assertEquals('test', $actual->attributes['class']->value);
+    }
 
-test('parse attribute without value', function () {
-    $actual = Parser::parse('<div type>text</div>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('DIV');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->attributes['type']))->toBe(true);
-    expect($actual->attributes['type']->value)->toBe("");
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseAttributeWithoutAValue()
+    {
+        $actual = Parser::parse('<div type>text</div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertTrue(isset($actual->attributes['type']));
+        $this->assertEquals('', $actual->attributes['type']->value);
+    }
 
-test('parse attribute without quotes', function () {
-    $actual = Parser::parse('<div type=text>text</div>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('DIV');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->attributes['type']))->toBe(true);
-    expect($actual->attributes['type']->value)->toBe('text');
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseAttributeWithoutQuotes()
+    {
+        $actual = Parser::parse('<div type=text>text</div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertTrue(isset($actual->attributes['type']));
+        $this->assertEquals('text', $actual->attributes['type']->value);
+    }
 
-test('parse custom data attribute', function () {
-    $actual = Parser::parse('<div data-type="text"></div>');
-    expect($actual)->toBeInstanceOf(Element::class);
-    /** @var Element $actual */
-    expect($actual->tagName)->toBe('DIV');
-    expect($actual->attributes)->toBeInstanceOf(NamedNodeMap::class);
-    expect(isset($actual->attributes['data-type']))->toBe(true);
-    expect($actual->attributes['data-type']->value)->toBe('text');
-});
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseAttributeWithQuotes()
+    {
+        $actual = Parser::parse('<div data-type="text">text</div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertTrue(isset($actual->attributes['data-type']));
+        $this->assertEquals('text', $actual->attributes['data-type']->value);
+    }
+
+    /**
+     * @covers \Genius257\Html\Parser::parse
+     */
+    public function testParseAttributeWithQuotesAndSpaces()
+    {
+        $actual = Parser::parse('<div data-type="text text">text</div>');
+        $this->assertInstanceOf(Element::class, $actual);
+        /** @var Element $actual */
+        $this->assertEquals('DIV', $actual->tagName);
+        $this->assertInstanceOf(NamedNodeMap::class, $actual->attributes);
+        $this->assertTrue(isset($actual->attributes['data-type']));
+        $this->assertEquals('text text', $actual->attributes['data-type']->value);
+    }
+}
