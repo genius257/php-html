@@ -46,6 +46,10 @@ abstract class Node
 
     public function previousSibling(): ?Node
     {
+        if ($this->parentNode === null) {
+            return null;
+        }
+
         $parentNodes = $this->parentNode->childNodes;
         return $parentNodes[array_search($this, $parentNodes) - 1] ?? null;
     }
