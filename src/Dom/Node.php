@@ -40,9 +40,9 @@ abstract class Node
 
     // public readonly string $ownerDocument;
 
-    public readonly null|Node $parentNode;
+    public null|Node $parentNode = null;
 
-    public readonly null|Node $parentElement;
+    public null|Node $parentElement = null;
 
     public function previousSibling(): ?Node
     {
