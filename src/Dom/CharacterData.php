@@ -23,7 +23,7 @@ abstract class CharacterData extends Node {
 
     public function after(DocumentFragment|DocumentType|Element|CharacterData ...$nodes): void {
         //FIXME: https://developer.mozilla.org/en-US/docs/Web/API/CharacterData/after#exceptions
-        
+
         if ($this->parentNode === null) {
             return;
         }
