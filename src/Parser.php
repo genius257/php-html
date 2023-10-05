@@ -225,8 +225,8 @@ class Parser
         $nodes = (new Parser(pos: 0, input: $source))->parseNodes();
 
         // If the document contains a root element, just return it. Otherwise, create one.
-        if (isset($nodes[0])) {
-            return $nodes[0]; // @phpstan-ignore return.type
+        if (count($nodes) === 1) {
+            return $nodes->getIterator()->current(); // @phpstan-ignore return.type
         } else {
             /** @var NamedNodeMap<Attr> */
             $attributes = new NamedNodeMap();
