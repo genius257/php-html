@@ -18,7 +18,8 @@
   "scripts": {
     "test": "pest",
     "phpstan": "phpstan",
-    "phpunit-coverage": "XDEBUG_MODE=coverage phpunit --coverage-text"
+    "phpunit-coverage": "XDEBUG_MODE=coverage phpunit --coverage-text",
+    "phpunit-coverage-html": "XDEBUG_MODE=coverage phpunit --coverage-html=.coverage"
   },
   "autoload-dev": {
     "psr-4": {
