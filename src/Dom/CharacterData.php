@@ -27,6 +27,7 @@ abstract class CharacterData extends Node {
      * Strings are inserted as Text nodes; the string is being passed as argument to the Text() constructor.
      */
     public function after(DocumentFragment|DocumentType|Element|CharacterData ...$nodes): void {
+        //FIXME: add support for string type as nodes
         //FIXME: https://developer.mozilla.org/en-US/docs/Web/API/CharacterData/after#exceptions
 
         if ($this->parentNode === null) {
