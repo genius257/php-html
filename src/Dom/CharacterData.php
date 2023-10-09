@@ -21,6 +21,11 @@ abstract class CharacterData extends Node {
         return null;
     }
 
+    /**
+     * Inserts a set of Node objects or strings in the children list of the object's parent, just after the object itself.
+     *
+     * Strings are inserted as Text nodes; the string is being passed as argument to the Text() constructor.
+     */
     public function after(DocumentFragment|DocumentType|Element|CharacterData ...$nodes): void {
         //FIXME: https://developer.mozilla.org/en-US/docs/Web/API/CharacterData/after#exceptions
 
