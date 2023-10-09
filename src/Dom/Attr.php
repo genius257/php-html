@@ -16,6 +16,7 @@ class Attr extends Node {
      * The qualified name of an attribute.
      *
      * The name of the attribute, with the namespace prefix, if any, in front of it.
+     * The qualified name is always in lower case, whatever case at the attribute creation.
      *
      * @see https://developer.mozilla.org/en-US/docs/Web/API/Attr/name
      */
@@ -29,6 +30,10 @@ class Attr extends Node {
 
     public string $value;
 
+    /**
+     * @param string $name The qualified name of an attribute.
+     * @param string $value The attribute's value, a string that can be set and get using this property.
+     */
     public function __construct(
         string $name,
         string $value = "",
